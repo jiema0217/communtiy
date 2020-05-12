@@ -42,16 +42,20 @@ public class AuthorizeController {
         accesstokenDTO.setCode(code);
         accesstokenDTO.setRedirect_uri(redirectUri);
         accesstokenDTO.setState(state);
+        //获取access_token的值
         String accessToken = githubProvider.getAccessToken(accesstokenDTO);
+        //获取GIthub用户信息
         GithubUser githubUser = githubProvider.getUser(accessToken);
         if (githubUser != null) {
             User user = new User();
+            //生成随机ID
             String token = UUID.randomUUID().toString();
             user.setToken(token);
             user.setName(githubUser.getName());
             user.setAccountId(String.valueOf(githubUser.getId()));
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
+            //添加到数据库中
             userMapper.insert(user);
             response.addCookie(new Cookie("token", token));
             return "redirect:/";
