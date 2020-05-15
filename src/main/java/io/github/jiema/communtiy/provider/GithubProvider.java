@@ -38,6 +38,7 @@ public class GithubProvider {
         //github有时候不允许访问，出现报错
         try (Response response = client.newCall(request).execute()) {
             String string = response.body().string();
+            //把json格式的数据转换成对象赋值给githubUser
             GithubUser githubUser = JSON.parseObject(string, GithubUser.class);
             return githubUser;
         } catch (IOException e) {

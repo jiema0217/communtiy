@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>发布</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" th:href="@{/css/bootstrap-theme.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/communtiy.css}">
+
+</head>
+<body>
+<div th:replace="~{navigation :: nav}"></div>
+<div class="container-fluid main">
+    <div class="row">
+        <div class="col-lg-9 col-md-12">
+            <h2><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>发起</h2>
+            <hr>
+            <form action="/publish" method="post">
+                <div class="form-group">
+                    <label for="title">问题标题:</label>
+                    <input type="text" class="form-control" th:value="${title}" id="title" name="title"
+                           placeholder="问题标题...">
+                </div>
+                <div class="form-group">
+                    <label for="title">问题补充(必填):</label>
+                    <textarea name="description" id="description" th:text="${description}" class="form-control"
+                              cols="30" rows="10"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="title">添加标签:</label>
+                    <input type="text" class="form-control" th:value="${tag}" id="tag" name="tag"
+                           placeholder="输入标签，以,号分隔">
+                </div>
+                <span class="alert alert-danger" th:if="${error!=null}" th:text="${error}"></span>
+                <button type="submit" class="btn btn-success btn-publish">发布</button>
+            </form>
+        </div>
+        <div class="col-lg-3 col-md-12">
+            <h3>问题发起指南</h3>
+
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>
