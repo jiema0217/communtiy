@@ -1,10 +1,7 @@
 package io.github.jiema.communtiy.mapper;
 
 import io.github.jiema.communtiy.model.Question;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -21,8 +18,15 @@ public interface QuestionMapper {
     Integer count();
 
     @Select("SELECT * FROM question WHERE creator=#{accountId} LIMIT #{offset}, #{size}")
-    List<Question> listByUserId(@Param("accountId") Integer accountId, @Param("offset") Integer offset, @Param("size") Integer size);
+    List<Question> listByUserId(@Param("accountId") String accountId, @Param("offset") Integer offset, @Param("size") Integer size);
 
     @Select("SELECT count(1) FROM question WHERE creator=#{accountId}")
-    Integer countByUserId(@Param("accountId") Integer accountId);
+    Integer countByUserId(@Param("accountId") String accountId);
+
+    @Select("SELECT * FROM question WHERE id=#{id}")
+    Question getById(@Param("id") Integer id);
+
+    @Update("UPDATE question SET title=#{title},description=#{description},gmt_modified=#{gmtModified},tag=#{tag}" +
+            "WHERE id=#{id}")
+    void update(Question question);
 }

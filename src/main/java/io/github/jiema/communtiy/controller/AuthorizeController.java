@@ -5,6 +5,7 @@ import io.github.jiema.communtiy.dto.GithubUser;
 import io.github.jiema.communtiy.mapper.UserMapper;
 import io.github.jiema.communtiy.model.User;
 import io.github.jiema.communtiy.provider.GithubProvider;
+import io.github.jiema.communtiy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -27,9 +28,8 @@ public class AuthorizeController {
     private String clientSecret;
     @Value("${github.redirect_uri}")
     private String redirectUri;
-
-    @Resource
-    private UserMapper userMapper;
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/callback")
     public String callback(@RequestParam("code") String code,
@@ -46,22 +46,30 @@ public class AuthorizeController {
         String accessToken = githubProvider.getAccessToken(accesstokenDTO);
         //获取GIthub用户信息
         GithubUser githubUser = githubProvider.getUser(accessToken);
-        if (githubUser != null && githubUser.getId() != null && userMapper.findById(githubUser.getId()) == null) {
+        if (githubUser != null && githubUser.getId() != null) {
             User user = new User();
             //生成随机ID
             String token = UUID.randomUUID().toString();
             user.setToken(token);
             user.setName(githubUser.getName());
-            user.setAccountId(String.valueOf(githubUser.getId()));
-            user.setGmtCreate(System.currentTimeMillis());
-            user.setGmtModified(user.getGmtCreate());
+            user.setAccountId(githubUser.getId());
             user.setAvatarUrl(githubUser.getAvatarUrl());
             //添加到数据库中
-            userMapper.insert(user);
+            userService.createOrUpdate(user);
             response.addCookie(new Cookie("token", token));
             return "redirect:/";
         } else {
             return "redirect:/";
         }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request,
+                         HttpServletResponse response) {
+        request.getSession().removeAttribute("user");
+        Cookie cookie = new Cookie("token", null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:/";
     }
 }

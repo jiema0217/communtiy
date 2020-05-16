@@ -6,6 +6,7 @@ import io.github.jiema.communtiy.mapper.QuestionMapper;
 import io.github.jiema.communtiy.mapper.UserMapper;
 import io.github.jiema.communtiy.model.Question;
 import io.github.jiema.communtiy.model.User;
+import io.github.jiema.communtiy.model.UserExample;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +32,12 @@ public class QuestionService {
         List<QuestionDTO> questionDTOList = new ArrayList<>();
         PaginationDTO paginationDTO = new PaginationDTO();
         for (Question question : questions) {
-            User user = userMapper.findById(question.getCreator());
+            UserExample example = new UserExample();
+            example.createCriteria().andAccountIdEqualTo(question.getCreator());
+            List<User> users = userMapper.selectByExample(example);
             QuestionDTO questionDTO = new QuestionDTO();
             BeanUtils.copyProperties(question, questionDTO);
-            questionDTO.setUser(user);
+            questionDTO.setUser(users.get(0));
             questionDTOList.add(questionDTO);
         }
         paginationDTO.setQuestionDTOS(questionDTOList);
@@ -42,7 +45,7 @@ public class QuestionService {
         return paginationDTO;
     }
 
-    public PaginationDTO list(Integer userId, Integer page, Integer size) {
+    public PaginationDTO list(String userId, Integer page, Integer size) {
         Integer totalCount = questionMapper.countByUserId(userId);
         Integer totalPage = totalCount / size + (totalCount % size != 0 ? 1 : 0);
         if (page < 1) page = 1;
@@ -52,14 +55,38 @@ public class QuestionService {
         List<QuestionDTO> questionDTOList = new ArrayList<>();
         PaginationDTO paginationDTO = new PaginationDTO();
         for (Question question : questions) {
-            User user = userMapper.findById(question.getCreator());
+            UserExample example = new UserExample();
+            example.createCriteria().andAccountIdEqualTo(question.getCreator());
+            List<User> users = userMapper.selectByExample(example);
             QuestionDTO questionDTO = new QuestionDTO();
             BeanUtils.copyProperties(question, questionDTO);
-            questionDTO.setUser(user);
+            questionDTO.setUser(users.get(0));
             questionDTOList.add(questionDTO);
         }
         paginationDTO.setQuestionDTOS(questionDTOList);
         paginationDTO.setPagination(totalPage, page);
         return paginationDTO;
+    }
+
+    public QuestionDTO getById(Integer id) {
+        Question question = questionMapper.getById(id);
+        QuestionDTO questionDTO = new QuestionDTO();
+        BeanUtils.copyProperties(question, questionDTO);
+        UserExample example = new UserExample();
+        example.createCriteria().andAccountIdEqualTo(question.getCreator());
+        List<User> users = userMapper.selectByExample(example);
+        questionDTO.setUser(users.get(0));
+        return questionDTO;
+    }
+
+    public void createOrUpdate(Question question) {
+        if (question.getId() == null) {
+            question.setGmtCreate(System.currentTimeMillis());
+            question.setGmtModified(question.getGmtCreate());
+            questionMapper.create(question);
+        } else {
+            question.setGmtModified(System.currentTimeMillis());
+            questionMapper.update(question);
+        }
     }
 }
