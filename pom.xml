@@ -98,7 +98,7 @@
                         <artifactId>h2</artifactId>
                         <version>1.4.200</version>
 
-                   </dependency>
+                    </dependency>
                 </dependencies>
             </plugin>
             <plugin>

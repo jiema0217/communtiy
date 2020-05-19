@@ -4,6 +4,7 @@ import io.github.jiema.communtiy.dto.PaginationDTO;
 import io.github.jiema.communtiy.dto.QuestionDTO;
 import io.github.jiema.communtiy.exception.CustomizeErrorCode;
 import io.github.jiema.communtiy.exception.CustomizeException;
+import io.github.jiema.communtiy.mapper.QuestionExtMapper;
 import io.github.jiema.communtiy.mapper.QuestionMapper;
 import io.github.jiema.communtiy.mapper.UserMapper;
 import io.github.jiema.communtiy.model.Question;
@@ -22,6 +23,9 @@ import java.util.List;
 public class QuestionService {
     @Resource
     private QuestionMapper questionMapper;
+
+    @Resource
+    private QuestionExtMapper questionExtMapper;
 
     @Resource
     private UserMapper userMapper;
@@ -76,7 +80,7 @@ public class QuestionService {
         return paginationDTO;
     }
 
-    public QuestionDTO getById(Integer id) {
+    public QuestionDTO getById(Long id) {
         Question question = questionMapper.selectByPrimaryKey(id);
         if (question == null) throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
         QuestionDTO questionDTO = new QuestionDTO();
@@ -92,7 +96,7 @@ public class QuestionService {
         if (question.getId() == null) {
             question.setGmtCreate(System.currentTimeMillis());
             question.setGmtModified(question.getGmtCreate());
-            questionMapper.insert(question);
+            questionMapper.insertSelective(question);
         } else {
             Question updateQuestion = new Question();
             updateQuestion.setGmtModified(System.currentTimeMillis());
@@ -106,5 +110,11 @@ public class QuestionService {
                 throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
             }
         }
+    }
+
+    public void incView(Long id) {
+        Question question = new Question();
+        question.setId(id);
+        questionExtMapper.incView(question);
     }
 }
