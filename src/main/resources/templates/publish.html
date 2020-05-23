@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/bootstrap-theme.min.css}">
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/communtiy.css}">
+    <script th:src="@{/js/communtiy.js}"></script>
 
 </head>
 <body>
@@ -31,7 +32,31 @@
                 <div class="form-group">
                     <label for="title">添加标签:</label>
                     <input type="text" class="form-control" th:value="${tag}" id="tag" name="tag"
-                           placeholder="输入标签，以,号分隔">
+                           placeholder="输入标签，以,号分隔" onclick="showSelectTag()">
+                    <div id="selectTag" class="publish-tag-tab">
+                        <div>
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab"
+                                                                          data-toggle="tab">开发语言</a></li>
+                                <li role="presentation"><a href="#profile" aria-controls="profile" role="tab"
+                                                           data-toggle="tab">平台框架</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="home">
+                                    <span class="label label-info"><span class="glyphicon glyphicon-tags"
+                                                                         onclick="selectTag('java')">java</span></span>
+                                    <span class="label label-info"><span class="glyphicon glyphicon-tags"
+                                                                         onclick="selectTag('HTML')">HTML</span></span>
+                                </div>
+                                <div role="tabpanel" class="tab-pane" id="profile">
+                                    <span class="label label-info"><span class="glyphicon glyphicon-tags"
+                                                                         onclick="selectTag('Spring')">Spring</span></span>
+                                    <span class="label label-info"><span class="glyphicon glyphicon-tags"
+                                                                         onclick="selectTag('Spring Boot')">Spring Boot</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <span class="alert alert-danger" th:if="${error!=null}" th:text="${error}"></span>
                 <button type="submit" class="btn btn-success btn-publish">发布</button>
@@ -43,6 +68,7 @@
         </div>
     </div>
 </div>
+
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/bootstrap.js}"></script>
 </body>
