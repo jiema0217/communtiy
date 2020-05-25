@@ -2,6 +2,8 @@ package io.github.jiema.communtiy.service;
 
 import io.github.jiema.communtiy.dto.CommentDTO;
 import io.github.jiema.communtiy.enums.CommentTYpeEnum;
+import io.github.jiema.communtiy.enums.NotificationStatusEnum;
+import io.github.jiema.communtiy.enums.NotificationTypeEnum;
 import io.github.jiema.communtiy.exception.CustomizeErrorCode;
 import io.github.jiema.communtiy.exception.CustomizeException;
 import io.github.jiema.communtiy.mapper.*;
@@ -30,6 +32,9 @@ public class CommentService {
     private UserMapper userMapper;
     @Resource
     private CommentExtMapper commentExtMapper;
+    @Resource
+    private NotificationMapper notificationMapper;
+
 
     @Transactional
     public void insert(Comment comment) {
@@ -40,20 +45,37 @@ public class CommentService {
             throw new CustomizeException(CustomizeErrorCode.TYPE_PARAM_WRONG);
         }
         if (comment.getType() == CommentTYpeEnum.COMMENT.getType()) {
+            //回复评论
             Comment dbcomment = commentMapper.selectByPrimaryKey(comment.getParentId());
             if (dbcomment == null) {
                 throw new CustomizeException(CustomizeErrorCode.COMMENT_NOT_FOUND);
             }
+            //增加评论数
             commentMapper.insert(comment);
             commentExtMapper.incCommentCount(dbcomment);
+            creatNotify(comment, dbcomment.getCommentator(), NotificationTypeEnum.REPLY_COMMENT);
         } else {
+            //回复问题
             Question question = questionMapper.selectByPrimaryKey(comment.getParentId());
             if (question == null) {
                 throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
             }
             commentMapper.insert(comment);
             questionExtMapper.incCommentCount(question);
+            creatNotify(comment, question.getCreator(), NotificationTypeEnum.REPLY_QUESTION);
         }
+    }
+
+    //创建通知
+    private void creatNotify(Comment comment, String receiver, NotificationTypeEnum notificationTypeEnum) {
+        Notification notification = new Notification();
+        notification.setGmtCreate(System.currentTimeMillis());
+        notification.setType(notificationTypeEnum.getType());
+        notification.setOuterid(comment.getParentId());
+        notification.setNotifier(comment.getCommentator());
+        notification.setStatus(NotificationStatusEnum.UNREAD.getStatus());
+        notification.setReceiver(receiver);
+        notificationMapper.insert(notification);
     }
 
     public List<CommentDTO> listByTargetId(Long id, CommentTYpeEnum type) {
