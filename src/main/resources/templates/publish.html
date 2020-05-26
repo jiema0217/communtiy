@@ -7,7 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/bootstrap-theme.min.css}">
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/communtiy.css}">
-    <script th:src="@{/js/communtiy.js}"></script>
+    <link rel="stylesheet" th:href="@{/editor.md-master/css/editormd.min.css}">
 
 </head>
 <body>
@@ -24,10 +24,10 @@
                     <input type="text" class="form-control" th:value="${title}" id="title" name="title"
                            placeholder="问题标题...">
                 </div>
-                <div class="form-group">
-                    <label for="title">问题补充(必填):</label>
-                    <textarea name="description" id="description" th:text="${description}" class="form-control"
-                              cols="30" rows="10"></textarea>
+                <div class="form-group" id="question-editor">
+                    <label for="description">问题补充(必填):</label>
+                    <textarea name="description" id="description" th:text="${description}" style="display:none;"
+                              class="form-control" cols="30" rows="10"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="title">添加标签:</label>
@@ -35,7 +35,8 @@
                            placeholder="输入标签，以,号分隔" onclick="showSelectTag()">
                     <div id="selectTag" class="publish-tag-tab">
                         <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" th:each="selectCategory,selectCategoryStat:${tags}" th:class="${selectCategoryStat.first?'active':''}">
+                            <li role="presentation" th:each="selectCategory,selectCategoryStat:${tags}"
+                                th:class="${selectCategoryStat.first?'active':''}">
                                 <a th:href="'#'+${selectCategory.categoryName}" aria-controls="home" role="tab"
                                    data-toggle="tab"
                                    th:text="${selectCategory.categoryName}">
@@ -44,7 +45,8 @@
                         </ul>
                         <div class="tab-content">
                             <div role="tabpanel" th:id="${selectCategory.categoryName}"
-                                 th:each="selectCategory:${tags}" th:class="${selectCategoryStat.first?'active tab-pane':'tab-pane'}">
+                                 th:each="selectCategory:${tags}"
+                                 th:class="${selectCategoryStat.first?'active tab-pane':'tab-pane'}">
                                     <span class="label label-info" th:each="selectTag:${selectCategory.tags}">
                                         <span class="glyphicon glyphicon-tags" onclick="selectTag(this)"
                                               th:data-tag="${selectTag}" th:text="${'  '+selectTag}"></span>
@@ -63,8 +65,25 @@
         </div>
     </div>
 </div>
-
+<div th:replace="~{footer :: foot}"></div>
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/bootstrap.js}"></script>
+<script th:src="@{/editor.md-master/editormd.min.js}"></script>
+<script th:src="@{/js/communtiy.js}"></script>
+<script>
+    $(function () {
+        let editor = editormd("question-editor", {
+            width: "100%",
+            height: 400,
+            path: '/editor.md-master/lib/',
+            placeholder: '',
+            delay: 0,
+            watch: true,
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL: "/file/upload",
+        });
+    });
+</script>
 </body>
 </html>

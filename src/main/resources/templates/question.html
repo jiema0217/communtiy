@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/bootstrap-theme.min.css}">
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/communtiy.css}">
+    <link rel="stylesheet" th:href="@{/editor.md/css/editormd.preview.css}"/>
     <script th:src="@{/js/moment.js}"></script>
 </head>
 <body>
@@ -23,7 +24,9 @@
                 发布时间：<span th:text="${#dates.format(question.gmtCreate,'yyyy年MM月dd日')}"></span>
             </span>
                 <hr>
-                <div class="col-sm-12" th:text="${question.description}"></div>
+                <div class="col-sm-12" id="question-view">
+                    <textarea style="display:none;" th:text="${question.description}"></textarea>
+                </div>
                 <hr class="col-sm-12">
                 <!--标签-->
                 <div class="col-sm-12">
@@ -86,12 +89,12 @@
                     <div class="media-left">
                         <a href="#">
                             <img class="media-object img-rounded"
-                                 th:src="${question.user.avatarUrl}">
+                                 th:src="${session.user!=null?session.user.avatarUrl:'/images/default-avatar.png'}">
                         </a>
                     </div>
                     <div class="media-body">
                         <h5 class="media-heading">
-                            <span th:text="${question.user.name}"></span>
+                            <span th:text="${session.user!=null?session.user.name:'未登录用户'}"></span>
                         </h5>
                     </div>
                 </div>
@@ -129,8 +132,18 @@
         </div>
     </div>
 </div>
+<div th:replace="~{footer :: foot}"></div>
 <script th:src="@{/js/communtiy.js}"></script>
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/bootstrap.js}"></script>
+<script th:src="@{/jquery.min.js}"></script>
+<script th:src="@{/editor.md-master/editormd.js}"></script>
+<script th:src="@{/editor.md-master/lib/marked.min.js}"></script>
+<script th:src="@{/editor.md-master/lib/prettify.min.js}"></script>
+<script>
+    $(function () {
+        editormd.markdownToHTML("question-view", {});
+    });
+</script>
 </body>
 </html>

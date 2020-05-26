@@ -16,7 +16,7 @@
             <h2><span th:text="${sectionName}"></span></h2>
             <hr>
             <div class="col-xs-12" th:if="${section}=='questions'">
-                <div class="media" th:each="question:${pagination.getQuestionDTOS()}">
+                <div class="media" th:each="question:${pagination.data}">
                     <div class="media-left">
                         <a href="#">
                             <img class="media-object img-rounded"
@@ -37,6 +37,20 @@
                     </span>
                     </div>
                 </div>
+            </div>
+            <div class="col-xs-12" th:if="${section}=='replies'">
+                <div class="media" th:each="notification:${pagination.data}">
+                    <div class="media-body">
+                        <h4 class="media-heading">
+                            <span th:text="${notification.notifierName+'  '+notification.typeName+'  '}"></span>
+                            <a th:href="@{'/notification/'+${notification.id}}"
+                               th:text="${notification.outerTitle}"></a>
+                            <span class="label label-danger" th:if="${notification.status==0}">未读</span>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
                 <nav aria-label="Page navigation">
                     <ul class="pagination">
                         <li th:if="${pagination.showFirstPage}">
@@ -68,9 +82,6 @@
                     </ul>
                 </nav>
             </div>
-            <div class="col-xs-12" th:if="${section}=='replies'">
-                回复通知内容
-            </div>
         </div>
         <div class="col-lg-3 col-md-12 ">
             <div class="list-group section">
@@ -78,12 +89,13 @@
                    th:class="${section=='questions'}?'active list-group-item':'list-group-item'">我的问题</a>
                 <a th:href="@{/profile/replies}"
                    th:class="${section=='replies'}?'active list-group-item':'list-group-item'">最新回复
-                    <span class="badge" th:text="${unreadCount}"> 2</span>
+                    <span class="badge" th:text="${session.unreadCount}"> </span>
                 </a>
             </div>
         </div>
     </div>
 </div>
+<div th:replace="~{footer :: foot}"></div>
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/bootstrap.js}"></script>
 </body>

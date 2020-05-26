@@ -2,6 +2,7 @@ package io.github.jiema.communtiy.service;
 
 import io.github.jiema.communtiy.dto.PaginationDTO;
 import io.github.jiema.communtiy.dto.QuestionDTO;
+import io.github.jiema.communtiy.dto.QuestionQueryDTO;
 import io.github.jiema.communtiy.exception.CustomizeErrorCode;
 import io.github.jiema.communtiy.exception.CustomizeException;
 import io.github.jiema.communtiy.mapper.QuestionExtMapper;
@@ -32,30 +33,6 @@ public class QuestionService {
     @Resource
     private UserMapper userMapper;
 
-    public PaginationDTO list(Integer page, Integer size) {
-        Integer totalCount = (int) questionMapper.countByExample(new QuestionExample());
-        Integer totalPage = totalCount / size + (totalCount % size != 0 ? 1 : 0);
-        if (page < 1) page = 1;
-        if (page > totalPage) page = totalPage;
-        Integer offset = size * (page - 1);
-        QuestionExample questionExample = new QuestionExample();
-        questionExample.setOrderByClause("gmt_create desc");
-        List<Question> questions = questionMapper.selectByExampleWithBLOBsWithRowbounds(questionExample, new RowBounds(offset, size));
-        List<QuestionDTO> questionDTOList = new ArrayList<>();
-        PaginationDTO paginationDTO = new PaginationDTO();
-        for (Question question : questions) {
-            UserExample example = new UserExample();
-            example.createCriteria().andAccountIdEqualTo(question.getCreator());
-            List<User> users = userMapper.selectByExample(example);
-            QuestionDTO questionDTO = new QuestionDTO();
-            BeanUtils.copyProperties(question, questionDTO);
-            questionDTO.setUser(users.get(0));
-            questionDTOList.add(questionDTO);
-        }
-        paginationDTO.setData(questionDTOList);
-        paginationDTO.setPagination(totalPage, page);
-        return paginationDTO;
-    }
 
     public PaginationDTO list(String userId, Integer page, Integer size) {
         QuestionExample questionExample = new QuestionExample();
@@ -74,6 +51,38 @@ public class QuestionService {
             UserExample userExample = new UserExample();
             userExample.createCriteria().andAccountIdEqualTo(question.getCreator());
             List<User> users = userMapper.selectByExample(userExample);
+            QuestionDTO questionDTO = new QuestionDTO();
+            BeanUtils.copyProperties(question, questionDTO);
+            questionDTO.setUser(users.get(0));
+            questionDTOList.add(questionDTO);
+        }
+        paginationDTO.setData(questionDTOList);
+        paginationDTO.setPagination(totalPage, page);
+        return paginationDTO;
+    }
+
+    public PaginationDTO listAndSearch(String search, Integer page, Integer size) {
+        if (StringUtils.isNotBlank(search)) {
+            search = search.replace(" ", "|");
+        }
+        QuestionQueryDTO questionQueryDTO = new QuestionQueryDTO();
+        questionQueryDTO.setSearch(search);
+        Integer totalCount = questionExtMapper.countBySearch(questionQueryDTO);
+        Integer totalPage = totalCount / size + (totalCount % size != 0 ? 1 : 0);
+        if (page < 1) page = 1;
+        if (page > totalPage) page = totalPage;
+        Integer offset = size * (page - 1);
+        QuestionExample questionExample = new QuestionExample();
+        questionExample.setOrderByClause("gmt_create desc");
+        questionQueryDTO.setSize(size);
+        questionQueryDTO.setPage(offset);
+        List<Question> questions = questionExtMapper.selectBySearch(questionQueryDTO);
+        List<QuestionDTO> questionDTOList = new ArrayList<>();
+        PaginationDTO paginationDTO = new PaginationDTO();
+        for (Question question : questions) {
+            UserExample example = new UserExample();
+            example.createCriteria().andAccountIdEqualTo(question.getCreator());
+            List<User> users = userMapper.selectByExample(example);
             QuestionDTO questionDTO = new QuestionDTO();
             BeanUtils.copyProperties(question, questionDTO);
             questionDTO.setUser(users.get(0));
@@ -127,6 +136,7 @@ public class QuestionService {
         Question question = new Question();
         question.setId(queryDTO.getId());
         question.setTag(queryDTO.getTag().replace("，", ",").replace(",", "|"));
+
         List<Question> questions = questionExtMapper.selectRelated(question);
         List<QuestionDTO> questionDTOS = questions.stream().map(q -> {
             QuestionDTO questionDTO = new QuestionDTO();

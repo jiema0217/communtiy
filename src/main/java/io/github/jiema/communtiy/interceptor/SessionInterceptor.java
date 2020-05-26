@@ -3,6 +3,8 @@ package io.github.jiema.communtiy.interceptor;
 import io.github.jiema.communtiy.mapper.UserMapper;
 import io.github.jiema.communtiy.model.User;
 import io.github.jiema.communtiy.model.UserExample;
+import io.github.jiema.communtiy.service.NotificationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,6 +19,8 @@ import java.util.List;
 public class SessionInterceptor implements HandlerInterceptor {
     @Resource
     private UserMapper userMapper;
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -31,6 +35,8 @@ public class SessionInterceptor implements HandlerInterceptor {
                     List<User> users = userMapper.selectByExample(userExample);
                     if (users.size() != 0) {
                         request.getSession().setAttribute("user", users.get(0));
+                        Long unreadCount = notificationService.unreadCount(users.get(0).getAccountId());
+                        request.getSession().setAttribute("unreadCount", unreadCount);
                     }
                     break;
                 }

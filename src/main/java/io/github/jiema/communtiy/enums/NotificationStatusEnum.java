@@ -11,4 +11,5 @@ public enum NotificationStatusEnum {
     NotificationStatusEnum(int status) {
         this.status = status;
     }
+
 }
