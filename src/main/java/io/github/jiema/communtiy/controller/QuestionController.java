@@ -22,6 +22,14 @@ public class QuestionController {
     @Autowired
     private CommentService commentService;
 
+    /**
+     * 访问用户的问题信息
+     * 并对阅读数进行增加
+     *
+     * @param id
+     * @param model
+     * @return
+     */
     @GetMapping("/question/{id}")
     public String question(@PathVariable("id") Long id,
                            Model model) {

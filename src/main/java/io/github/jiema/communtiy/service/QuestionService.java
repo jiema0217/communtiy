@@ -34,6 +34,15 @@ public class QuestionService {
     private UserMapper userMapper;
 
 
+    /**
+     * 查询该用户的所以提问
+     * 进行分页查询
+     *
+     * @param userId
+     * @param page
+     * @param size
+     * @return
+     */
     public PaginationDTO list(String userId, Integer page, Integer size) {
         QuestionExample questionExample = new QuestionExample();
         questionExample.createCriteria().andCreatorEqualTo(userId);
@@ -41,7 +50,7 @@ public class QuestionService {
         Integer totalPage = totalCount / size + (totalCount % size != 0 ? 1 : 0);
         if (page < 1) page = 1;
         if (page > totalPage) page = totalPage;
-        Integer offset = size * (page - 1);
+        Integer offset = page < 0 ? 0 : size * (page - 1);
         QuestionExample example1 = new QuestionExample();
         example1.createCriteria().andCreatorEqualTo(userId);
         List<Question> questions = questionMapper.selectByExampleWithBLOBsWithRowbounds(example1, new RowBounds(offset, size));
@@ -61,6 +70,7 @@ public class QuestionService {
         return paginationDTO;
     }
 
+    //显示主页面或查询的结果
     public PaginationDTO listAndSearch(String search, Integer page, Integer size) {
         if (StringUtils.isNotBlank(search)) {
             search = search.replace(" ", "|");
@@ -71,7 +81,7 @@ public class QuestionService {
         Integer totalPage = totalCount / size + (totalCount % size != 0 ? 1 : 0);
         if (page < 1) page = 1;
         if (page > totalPage) page = totalPage;
-        Integer offset = size * (page - 1);
+        Integer offset = page < 0 ? 0 : size * (page - 1);
         QuestionExample questionExample = new QuestionExample();
         questionExample.setOrderByClause("gmt_create desc");
         questionQueryDTO.setSize(size);
@@ -125,12 +135,24 @@ public class QuestionService {
         }
     }
 
+    /**
+     * 更新查看次数
+     *
+     * @param id
+     */
     public void incView(Long id) {
         Question question = new Question();
         question.setId(id);
         questionExtMapper.incView(question);
     }
 
+    /**
+     * 查询相关的问题
+     * 对用户的标签进行分割，便于数据库查询
+     *
+     * @param queryDTO
+     * @return
+     */
     public List<QuestionDTO> selectRelated(QuestionDTO queryDTO) {
         if (StringUtils.isBlank(queryDTO.getTitle())) return new ArrayList<>();
         Question question = new Question();

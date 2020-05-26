@@ -13,6 +13,11 @@ public class UserService {
     @Resource
     private UserMapper userMapper;
 
+    /**
+     * 对用户进行检测，如果数据库没该用户，对其进行添加，否则修改改变的的值
+     *
+     * @param user
+     */
     public void createOrUpdate(User user) {
         UserExample userExample = new UserExample();
         userExample.createCriteria().andAccountIdEqualTo(user.getAccountId());

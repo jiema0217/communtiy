@@ -2,7 +2,6 @@ package io.github.jiema.communtiy.controller;
 
 import io.github.jiema.communtiy.dto.AccesstokenDTO;
 import io.github.jiema.communtiy.dto.GithubUser;
-import io.github.jiema.communtiy.mapper.UserMapper;
 import io.github.jiema.communtiy.model.User;
 import io.github.jiema.communtiy.provider.GithubProvider;
 import io.github.jiema.communtiy.service.UserService;
@@ -12,11 +11,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
+
 
 @Controller
 public class AuthorizeController {
@@ -31,10 +30,20 @@ public class AuthorizeController {
     @Autowired
     private UserService userService;
 
+    /**
+     * 用户登录校验
+     * 通过页面传递过来的code和state去github获取用户的access——token值
+     * 在用该值登录到github上，返回的用户数据如果在服务器的数据库存在，则更新Token
+     * 否则存入数据中
+     *
+     * @param code
+     * @param state
+     * @param response
+     * @return index.html
+     */
     @GetMapping("/callback")
     public String callback(@RequestParam("code") String code,
                            @RequestParam("state") String state,
-                           HttpServletRequest request,
                            HttpServletResponse response) {
         AccesstokenDTO accesstokenDTO = new AccesstokenDTO();
         accesstokenDTO.setClient_id(clientId);
@@ -63,6 +72,14 @@ public class AuthorizeController {
         }
     }
 
+    /**
+     * 用户退出登录页面
+     * 进行清除服务器的session和用户浏览器的cookie的信息
+     *
+     * @param request
+     * @param response
+     * @return index.html
+     */
     @GetMapping("/logout")
     public String logout(HttpServletRequest request,
                          HttpServletResponse response) {

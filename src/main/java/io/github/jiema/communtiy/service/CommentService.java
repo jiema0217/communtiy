@@ -38,14 +38,16 @@ public class CommentService {
 
     @Transactional
     public void insert(Comment comment, User commentator) {
+        //检验评论信息是否合法
         if (comment.getParentId() == null || comment.getParentId() == 0) {
             throw new CustomizeException(CustomizeErrorCode.TARGET_PARAM_NOT_FOUND);
         }
         if (comment.getType() == null || !CommentTYpeEnum.isExist(comment.getType())) {
             throw new CustomizeException(CustomizeErrorCode.TYPE_PARAM_WRONG);
         }
+
+        //回复评论
         if (comment.getType() == CommentTYpeEnum.COMMENT.getType()) {
-            //回复评论
             Comment dbcomment = commentMapper.selectByPrimaryKey(comment.getParentId());
             if (dbcomment == null) {
                 throw new CustomizeException(CustomizeErrorCode.COMMENT_NOT_FOUND);

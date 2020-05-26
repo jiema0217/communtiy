@@ -16,6 +16,16 @@ import java.io.PrintWriter;
 
 @ControllerAdvice
 public class CustomizeExceptionHandler {
+    /**
+     *用户可能在访问页面进行另类操作
+     * 或服务器或代码bug等因素
+     * 给用户提供良好的错误信息
+     * @param request
+     * @param e
+     * @param model
+     * @param response
+     * @return
+     */
     @ExceptionHandler(Exception.class)
     ModelAndView handle(HttpServletRequest request, Throwable e, Model model, HttpServletResponse response) {
         String contentType = request.getContentType();

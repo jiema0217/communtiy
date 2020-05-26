@@ -21,6 +21,14 @@ public class NotificationService {
     @Resource
     private NotificationMapper notificationMapper;
 
+    /**
+     * 查询用户的回复提示
+     *
+     * @param accountId
+     * @param page
+     * @param size
+     * @return
+     */
     public PaginationDTO list(String accountId, Integer page, Integer size) {
         PaginationDTO<NotificationDTO> paginationDTO = new PaginationDTO<>();
         NotificationExample notificationExample = new NotificationExample();
@@ -29,7 +37,7 @@ public class NotificationService {
         Integer totalPage = totalCount / size + (totalCount % size != 0 ? 1 : 0);
         if (page < 1) page = 1;
         if (page > totalPage) page = totalPage;
-        Integer offset = size * (page - 1);
+        Integer offset = page < 0 ? 0 : size * (page - 1);
         NotificationExample example = new NotificationExample();
         example.createCriteria().andReceiverEqualTo(accountId);
         example.setOrderByClause("gmt_create desc");
@@ -49,6 +57,12 @@ public class NotificationService {
         return paginationDTO;
     }
 
+    /**
+     * 显示用户没有查看的回复提示
+     *
+     * @param userId
+     * @return
+     */
     public Long unreadCount(String userId) {
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria().andReceiverEqualTo(userId).andStatusEqualTo(NotificationStatusEnum.UNREAD.getStatus());

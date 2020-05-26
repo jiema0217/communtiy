@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class TagCache {
+    /**
+     * 便于查询其他相似的问题，对tag进行严格的管理
+     * 把tag全部标签缓存在这里
+     * @return tagDTOS
+     */
     public static List<TagDTO> get() {
         List<TagDTO> tagDTOS = new ArrayList<>();
         TagDTO program = new TagDTO();
@@ -38,6 +43,12 @@ public class TagCache {
         return tagDTOS;
     }
 
+    /**
+     * 用户可能会输入非法的tag，不便于查找相似问题
+     * 对其进行校验，返回给用户不合法的tag
+     * @param tags
+     * @return invalid
+     */
     public static String filterInvalid(String tags) {
         String[] split = StringUtils.split(tags, ",");
         List<TagDTO> tagDTOS = get();
